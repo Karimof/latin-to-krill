@@ -18,4 +18,7 @@ public class Word {
     @Column(unique = true)
     private String oneWord;
 
+    public Word(String word) {
+        this.oneWord = word;
+    }
 }

@@ -6,13 +6,75 @@
 </head>
 <body>
 <div style="padding: 70px">
-    <form action="" method="post">
-        <textarea th:text="${text1}" style="font-size: 16pt; width: 550px; height: 450px" name="input1"></textarea>
-        <button style="border-radius: 5px; border-style: double">Translate</button>
-        <textarea th:text="${text2}" style="font-size: 16pt; width: 550px; height: 450px" name="input2"></textarea>
-<!--        <span th:text="#{groupMembers}"></span> :-->
+    <form action="" method="post" style=" display: flex;justify-content: space-between;align-items: center;">
+        <div th:text="${text1}" id="input1" contenteditable="true" style="font-size: 16pt;
+        width: 550px; height: 450px; font-family: Arial,sans-serif">
 
+        </div>
+        <textarea name="input1" id="textA1" style="height: 100px" hidden></textarea>
+        <button style="top:100px;border-radius: 5px; border-style: double;height: 300px">Translate</button>
+        <div id="input2" style="font-size: 16pt; width: 550px; height: 450px; font-family: Arial,sans-serif"></div>
     </form>
+    <!--    <div th:each="one: ${wordMistake}">-->
+    <!--        <tr th:each="each: ${one}">-->
+    <!--            <td th:text="${each}"></td>-->
+    <!--        </tr>-->
+    <!--    </div>-->
 </div>
+<script th:inline="javascript">
+
+    // div content's to Controller via textarea
+    let div1Value = document.getElementById("input1");
+    let textArea = document.getElementById("textA1");
+    textArea.value = div1Value.textContent.trim();
+    div1Value.oninput = () => {
+        let content = div1Value.innerHTML;
+        let selects = document.getElementsByTagName('select');
+        for (let i = 0; i < selects.length; i++) {
+            content = content.replace(selects[i].outerHTML, selects[i].value)
+        }
+        textArea.value = content;
+    }
+
+    let div2ForResult = document.getElementById("input2");
+
+    let text1 = [[${text1}]];
+    let text2 = [[${text2}]];
+    let map = [[${wordMistake}]];
+    let text1FromBackend = text1.trim().split(' ');
+
+    let forResultText1String = '';
+
+    for (const [key, value] of Object.entries(map)) {
+        if (!(text1FromBackend[key].includes('0') ||
+            text1FromBackend[key].includes('1') ||
+            text1FromBackend[key].includes('2') ||
+            text1FromBackend[key].includes('3') ||
+            text1FromBackend[key].includes('4') ||
+            text1FromBackend[key].includes('5') ||
+            text1FromBackend[key].includes('6') ||
+            text1FromBackend[key].includes('7') ||
+            text1FromBackend[key].includes('8') ||
+            text1FromBackend[key].includes('9') ||
+            text1FromBackend[key].includes('?') ||
+            text1FromBackend[key].includes('-')
+        )) {
+            let temp = text1FromBackend[key];
+            text1FromBackend[key] =
+                '<select name="' + temp + '">' +
+                '<option>' + temp + '</option>';
+            for (let i = 0; i < map[key].length; i++) {
+                text1FromBackend[key] += '<option value="' + map[key][i] + '">' + map[key][i] + '</option>';
+            }
+            text1FromBackend[key] += '</select>';
+        }
+    }
+    for (let i = 0; i < text1FromBackend.length; i++) {
+        forResultText1String += text1FromBackend[i].trim() + ' ';
+    }
+    div1Value.innerHTML = forResultText1String;
+    forResultText1String = '';
+    div2ForResult.textContent = text2;
+</script>
 </body>
 </html>
